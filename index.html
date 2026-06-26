@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ダンス練習用・カメラ＆YouTube重ね合わせ</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: sans-serif;
+        }
+
+        /* 1. カメラ映像（最背面） */
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            transform: scaleX(-1); /* ミラー表示（有効化済み） */
+            z-index: 1;
+        }
+
+        /* 2. YouTubeプレイヤー（前面・半透明） */
+        .video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            opacity: 0.5; /* ★透明度：0.0（完全に透明）〜1.0（不透明） */
+            pointer-events: none; /* ★重要：動画上のクリックを無効化し、下の操作パネルを触れるようにする */
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 3. 操作パネル（最前面） */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .controls input[type="text"] {
+            width: 300px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+        }
+        .controls button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            background-color: #ff0000;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background-color: #cc0000;
+        }
+        .controls label {
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <video id="webcam" autoplay playsinline></video>
+
+    <div class="video-container">
+        <div id="player"></div>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="youtubeUrl" placeholder="YouTubeのURLまたは動画IDを入力">
+        <button onclick="loadVideo()">動画を読み込み</button>
+        
+        <label>
+            動画の薄さ:
+            <input type="range" id="opacitySlider" min="0.1" max="0.9" step="0.05" value="0.5" oninput="changeOpacity(this.value)">
+        </label>
+    </div>
+
+    <script>
+        // --- 1. カメラ初期化 ---
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 3840 }, height: { ideal: 2160 } },
+                    audio: false
+                });
+                document.getElementById('webcam').srcObject = stream;
+            } catch (error) {
+                console.error('カメラの取得に失敗しました:', error);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', initCamera);
+
+
+        // --- 2. YouTube IFrame Player API の読み込み ---
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        let player;
+        // APIの準備ができたら自動で呼ばれる関数
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'dQw4w9WgXcQ', // 初期状態の動画ID（適当な動画が入っています）
+                playerVars: {
+                    'autoplay': 1,
+                    'mute': 1,       // 自動再生のためにミュート推奨
+                    'controls': 1,   // YouTube標準のシークバーや再生ボタンを表示
+                    'rel': 0
+                }
+            });
+        }
+
+        // --- 3. アプリの操作ロジック ---
+        
+        // URLから動画IDを抽出して読み込む関数
+        function loadVideo() {
+            const input = document.getElementById('youtubeUrl').value;
+            let videoId = input;
+
+            // 通常のURLや共有URLからID（11桁）を抽出する簡易判定
+            if (input.includes('v=')) {
+                videoId = input.split('v=')[1].split('&')[0];
+            } else if (input.includes('youtu.be/')) {
+                videoId = input.split('youtu.be/')[1].split('?')[0];
+            }
+
+            if (videoId && player && typeof player.loadVideoById === 'function') {
+                player.loadVideoById({ videoId: videoId });
+            } else {
+                alert('有効なYouTubeのURLまたは動画IDを入力してください。');
+            }
+        }
+
+        // スライダーで透明度をリアルタイムに変更する関数
+        function changeOpacity(value) {
+            document.querySelector('.video-container').style.opacity = value;
+        }
+    </script>
+</body>
+</html>
