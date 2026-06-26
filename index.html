@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ダンス練習用・カメラ＆YouTube重ね合わせ</title>
+    <title>ダンス練習用・カメラ＆YouTube重ね合わせ (YouTube反転機能付き)</title>
     <style>
         html, body {
             margin: 0;
@@ -23,7 +23,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover; 
-            transform: scaleX(-1); /* ミラー表示 */
+            transform: scaleX(-1); /* ミラー表示（有効化済み） */
             z-index: 1;
         }
 
@@ -35,9 +35,16 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            opacity: 0.5;
-            pointer-events: none; /* クリックをすり抜けさせて下のコントロールを触らせる */
+            opacity: 0.5; /* 初期透明度 */
+            pointer-events: none; /* ★重要：動画上のクリックを無効化し、下の操作パネルを触れるようにする */
+            transition: transform 0.3s ease; /* 反転時のアニメーション */
         }
+        
+        /* YouTube動画を左右反転させるクラス */
+        .video-container.mirrored {
+            transform: scaleX(-1);
+        }
+
         iframe {
             width: 100%;
             height: 100%;
@@ -101,6 +108,16 @@
         .btn-player:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+        
+        /* YouTube反転ボタン専用スタイル */
+        .btn-player.btn-flip {
+            background-color: #007bff; /* 青色で強調 */
+            border: none;
+        }
+        .btn-player.btn-flip:hover {
+            background-color: #0056b3;
+        }
+
         .controls label {
             color: white;
             font-size: 14px;
@@ -115,7 +132,7 @@
 
     <video id="webcam" autoplay playsinline></video>
 
-    <div class="video-container">
+    <div class="video-container" id="videoContainer">
         <div id="player"></div>
     </div>
 
@@ -129,6 +146,8 @@
             <button class="btn-player" onclick="skip(-10)">◀ 10秒戻る</button>
             <button class="btn-player" id="playPauseBtn" onclick="togglePlay()">一時停止</button>
             <button class="btn-player" onclick="skip(10)">10秒進む ▶</button>
+            
+            <button class="btn-player btn-flip" onclick="toggleYoutubeMirror()">YouTubeを反転</button>
             
             <label>
                 動画の薄さ:
@@ -160,6 +179,7 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         let player;
+        // APIの準備ができたら自動で呼ばれる関数
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
                 height: '100%',
@@ -167,8 +187,8 @@
                 videoId: 'dQw4w9WgXcQ', // 初期動画
                 playerVars: {
                     'autoplay': 1,
-                    'mute': 1,       // ブラウザの自動再生ポリシー対策でミュート開始
-                    'controls': 0,   // ★純正コントロールはクリックできないので非表示に
+                    'mute': 1,       // 自動再生のためにミュート推奨
+                    'controls': 0,   // 純正コントロールは非表示に
                     'rel': 0
                 },
                 events: {
@@ -179,7 +199,7 @@
 
         // --- 3. アプリの操作ロジック ---
         
-        // URLから動画IDを抽出して読み込む
+        // URLから動画IDを抽出して読み込む関数
         function loadVideo() {
             const input = document.getElementById('youtubeUrl').value;
             let videoId = input;
@@ -192,7 +212,6 @@
 
             if (videoId && player && typeof player.loadVideoById === 'function') {
                 player.loadVideoById({ videoId: videoId });
-                // 新しい動画を読み込んだらミュートを解除（任意）
                 player.unMute(); 
             } else {
                 alert('有効なYouTubeのURLを入力してください。');
@@ -229,9 +248,15 @@
             player.seekTo(currentTime + seconds, true);
         }
 
+        // YouTube動画の左右反転を切り替える関数
+        function toggleYoutubeMirror() {
+            const container = document.getElementById('videoContainer');
+            container.classList.toggle('mirrored');
+        }
+
         // 透明度変更
         function changeOpacity(value) {
-            document.querySelector('.video-container').style.opacity = value;
+            document.getElementById('videoContainer').style.opacity = value;
         }
     </script>
 </body>
