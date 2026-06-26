@@ -35,7 +35,7 @@
             pointer-events: none;
             
             /* ★重要：アニメーションの起点（右上）を指定 */
-            transform-origin: center;
+            transform-origin: top right;
             
             /* サイズや位置の変更を滑らかにする設定 */
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -51,10 +51,11 @@
             border-radius: 0px;
             border: 2px solid transparent;
             box-shadow: none;
+            transform: scaleX(1);
         }
         /* 通常モード ＋ 反転 */
         .video-container.mode-overlay.mirrored {
-            transform: scaleX(-1);
+            transform: scaleX(-1) translateX(100%);
         }
 
         /* 【ミニ画面モード：画面右上に1/3サイズで配置】 */
@@ -70,10 +71,11 @@
             border-radius: 16px;
             overflow: hidden;
             border: 2px solid rgba(255, 194, 235, 0.6);
+            transform: scaleX(1);
         }
         /* ミニ画面モード ＋ 反転（起点を右上に保ったまま反転） */
         .video-container.mode-mini.mirrored {
-            transform: scaleX(-1);
+            transform: scaleX(-1) translateX(100%);
         }
 
         iframe {
