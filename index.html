@@ -35,7 +35,7 @@
             pointer-events: none;
             
             /* ★重要：アニメーションの起点（右上）を指定 */
-            transform-origin: top right; 
+            transform-origin: center;
             
             /* サイズや位置の変更を滑らかにする設定 */
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -62,7 +62,7 @@
             top: 20px;
             right: 20px;
             /* 通常モード（全画面）の基準位置(top:0, left:0)から計算した右上への配置用スタイル */
-            left: calc(100% - 30vw - 20px); 
+            left: auto;
             width: 30vw;
             height: calc(30vw * 9 / 16);
             opacity: 1.0 !important;
