@@ -356,6 +356,13 @@
         function toggleYoutubeMirror() {
             const container = document.getElementById('videoContainer');
             container.classList.toggle('mirrored');
+
+            // ★新ロジック：反転している間だけ起源を center にし、戻ったら top right に戻す
+            if (container.classList.contains('mirrored')) {
+                container.style.transformOrigin = 'center';
+            } else {
+                container.style.transformOrigin = 'top right';
+            }
         }
 
         function changeOpacity(value) {
