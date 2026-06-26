@@ -28,17 +28,15 @@
             z-index: 1;
         }
 
-        /* 2. YouTubeプレイヤーのコンテナ */
+        /* 2. YouTubeプレイヤーのコンテナ（親：右上起点のサイズ変更のみを担当） */
         .video-container {
             position: absolute;
             z-index: 2;
             pointer-events: none;
             
-            /* ★重要：アニメーションの起点（右上）を指定 */
+            /* ★モード切り替えは常に「右上（top right）」を起点にする */
             transform-origin: top right;
-            
-            /* サイズや位置の変更を滑らかにする設定 */
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         /* 【通常モード：画面全体に重畳】 */
@@ -51,18 +49,12 @@
             border-radius: 0px;
             border: 2px solid transparent;
             box-shadow: none;
-            transform: scaleX(1);
-        }
-        /* 通常モード ＋ 反転 */
-        .video-container.mode-overlay.mirrored {
-            transform: scaleX(-1) translateX(100%);
         }
 
         /* 【ミニ画面モード：画面右上に1/3サイズで配置】 */
         .video-container.mode-mini {
             top: 20px;
             right: 20px;
-            /* 通常モード（全画面）の基準位置(top:0, left:0)から計算した右上への配置用スタイル */
             left: auto;
             width: 30vw;
             height: calc(30vw * 9 / 16);
@@ -71,11 +63,20 @@
             border-radius: 16px;
             overflow: hidden;
             border: 2px solid rgba(255, 194, 235, 0.6);
-            transform: scaleX(1);
         }
-        /* ミニ画面モード ＋ 反転（起点を右上に保ったまま反転） */
-        .video-container.mode-mini.mirrored {
-            transform: scaleX(-1) translateX(100%);
+
+        /* ★新しく追加：中のプレイヤー（子：左右反転のみを担当） */
+        #player {
+            width: 100%;
+            height: 100%;
+            /* 反転の起点は常に「中央（center）」に固定 */
+            transform-origin: center;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* ★新しく追加：MIRROR状態の時、中の動画だけを中央軸で反転 */
+        .video-container.mirrored #player {
+            transform: scaleX(-1);
         }
 
         iframe {
