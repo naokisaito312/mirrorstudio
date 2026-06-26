@@ -23,7 +23,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover; 
-            transform: scaleX(-1); /* ミラー表示（有効化済み） */
+            transform: scaleX(-1); /* ミラー表示 */
             z-index: 1;
         }
 
@@ -35,8 +35,8 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            opacity: 0.5; /* ★透明度：0.0（完全に透明）〜1.0（不透明） */
-            pointer-events: none; /* ★重要：動画上のクリックを無効化し、下の操作パネルを触れるようにする */
+            opacity: 0.5;
+            pointer-events: none; /* クリックをすり抜けさせて下のコントロールを触らせる */
         }
         iframe {
             width: 100%;
@@ -51,22 +51,29 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 3;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.85); /* 少し濃くして見やすく */
             padding: 15px 25px;
             border-radius: 30px;
             display: flex;
-            gap: 15px;
+            flex-direction: column; /* 2段構成にする */
+            gap: 12px;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
+
+        /* 上段：URL入力エリア */
+        .controls-top {
+            display: flex;
+            gap: 10px;
+        }
         .controls input[type="text"] {
-            width: 300px;
+            width: 250px;
             padding: 8px 12px;
             border-radius: 20px;
             border: none;
             outline: none;
         }
-        .controls button {
+        .controls .btn-load {
             padding: 8px 16px;
             border-radius: 20px;
             border: none;
@@ -75,8 +82,24 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .controls button:hover {
-            background-color: #cc0000;
+
+        /* 下段：動画操作ボタン＆スライダー */
+        .controls-bottom {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .btn-player {
+            padding: 6px 14px;
+            border-radius: 15px;
+            border: 1px solid #fff;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-player:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
         .controls label {
             color: white;
@@ -84,6 +107,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -96,13 +120,21 @@
     </div>
 
     <div class="controls">
-        <input type="text" id="youtubeUrl" placeholder="YouTubeのURLまたは動画IDを入力">
-        <button onclick="loadVideo()">動画を読み込み</button>
+        <div class="controls-top">
+            <input type="text" id="youtubeUrl" placeholder="YouTubeのURLまたは動画IDを入力">
+            <button class="btn-load" onclick="loadVideo()">動画を読み込み</button>
+        </div>
         
-        <label>
-            動画の薄さ:
-            <input type="range" id="opacitySlider" min="0.1" max="0.9" step="0.05" value="0.5" oninput="changeOpacity(this.value)">
-        </label>
+        <div class="controls-bottom">
+            <button class="btn-player" onclick="skip(-10)">◀ 10秒戻る</button>
+            <button class="btn-player" id="playPauseBtn" onclick="togglePlay()">一時停止</button>
+            <button class="btn-player" onclick="skip(10)">10秒進む ▶</button>
+            
+            <label>
+                動画の薄さ:
+                <input type="range" id="opacitySlider" min="0.1" max="0.9" step="0.05" value="0.5" oninput="changeOpacity(this.value)">
+            </label>
+        </div>
     </div>
 
     <script>
@@ -128,29 +160,30 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         let player;
-        // APIの準備ができたら自動で呼ばれる関数
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
-                videoId: 'dQw4w9WgXcQ', // 初期状態の動画ID（適当な動画が入っています）
+                videoId: 'dQw4w9WgXcQ', // 初期動画
                 playerVars: {
                     'autoplay': 1,
-                    'mute': 1,       // 自動再生のためにミュート推奨
-                    'controls': 1,   // YouTube標準のシークバーや再生ボタンを表示
+                    'mute': 1,       // ブラウザの自動再生ポリシー対策でミュート開始
+                    'controls': 0,   // ★純正コントロールはクリックできないので非表示に
                     'rel': 0
+                },
+                events: {
+                    'onStateChange': onPlayerStateChange
                 }
             });
         }
 
         // --- 3. アプリの操作ロジック ---
         
-        // URLから動画IDを抽出して読み込む関数
+        // URLから動画IDを抽出して読み込む
         function loadVideo() {
             const input = document.getElementById('youtubeUrl').value;
             let videoId = input;
 
-            // 通常のURLや共有URLからID（11桁）を抽出する簡易判定
             if (input.includes('v=')) {
                 videoId = input.split('v=')[1].split('&')[0];
             } else if (input.includes('youtu.be/')) {
@@ -159,12 +192,44 @@
 
             if (videoId && player && typeof player.loadVideoById === 'function') {
                 player.loadVideoById({ videoId: videoId });
+                // 新しい動画を読み込んだらミュートを解除（任意）
+                player.unMute(); 
             } else {
-                alert('有効なYouTubeのURLまたは動画IDを入力してください。');
+                alert('有効なYouTubeのURLを入力してください。');
             }
         }
 
-        // スライダーで透明度をリアルタイムに変更する関数
+        // 再生 / 一時停止の切り替え
+        function togglePlay() {
+            if (!player || typeof player.getPlayerState !== 'function') return;
+            
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        }
+
+        // 動画の状態が変わったときにボタンのテキストを変更する
+        function onPlayerStateChange(event) {
+            const btn = document.getElementById('playPauseBtn');
+            if (event.data === YT.PlayerState.PLAYING) {
+                btn.innerText = "一時停止";
+            } else {
+                btn.innerText = "再生";
+            }
+        }
+
+        // スキップ（戻る・進む）機能
+        function skip(seconds) {
+            if (!player || typeof player.getCurrentTime !== 'function') return;
+            
+            const currentTime = player.getCurrentTime();
+            player.seekTo(currentTime + seconds, true);
+        }
+
+        // 透明度変更
         function changeOpacity(value) {
             document.querySelector('.video-container').style.opacity = value;
         }
