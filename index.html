@@ -243,6 +243,8 @@
         <button class="btn-player" onclick="skip(10)">10s ▶</button>
         
         <div class="divider"></div>
+
+        <button class="btn-player btn-gradient" id="speedBtn" onclick="toggleSpeed()">SPEED: 1.0x</button>
         
         <button class="btn-player btn-gradient" id="modeBtn" onclick="toggleMode()">MODE: OVERLAY</button>
         
@@ -367,6 +369,28 @@
             }
         }
 
+        // ★追加：スピード管理用の変数とトグル関数
+        let currentSpeed = 1.0;
+
+        function toggleSpeed() {
+            if (!player || typeof player.setPlaybackRate !== 'function') return;
+
+            // 1.0 -> 0.75 -> 0.5 -> 1.0 の順に切り替え
+            if (currentSpeed === 1.0) {
+                currentSpeed = 0.75;
+            } else if (currentSpeed === 0.75) {
+                currentSpeed = 0.5;
+            } else {
+                currentSpeed = 1.0;
+            }
+
+            // YouTubeプレイヤーに速度を適用
+            player.setPlaybackRate(currentSpeed);
+            
+            // ボタンのテキストを更新
+            document.getElementById('speedBtn').innerText = `SPEED: ${currentSpeed}x`;
+        }
+        
         // 表示モード切り替え
         function toggleMode() {
             const container = document.getElementById('videoContainer');
