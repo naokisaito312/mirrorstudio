@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ILLIT-inspired Dance Mirror App</title>
+    <title>ILLIT-inspired Dance Mirror App (Compact Line)</title>
     <style>
         html, body {
             margin: 0;
@@ -11,7 +11,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #0b071e; /* 深い神秘的な夜空のようなパープルブラック */
+            background-color: #0b071e;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
@@ -51,151 +51,144 @@
             border: none;
         }
 
-        /* 3. ILLIT風操作パネル（最前面） */
+        /* 3. 操作パネル（最前面・横1行コンパクト仕様） */
         .controls {
             position: absolute;
-            bottom: 30px;
+            bottom: 16px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 3;
             
-            /* グラスモフィズム：透明感のある背景とボケ効果 */
+            /* グラスモフィズム効果 */
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             
-            padding: 20px 30px;
-            border-radius: 24px;
+            /* 横一列のレイアウト設定 */
+            padding: 10px 20px;
+            border-radius: 40px;
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            flex-direction: row; /* 横並び */
             align-items: center;
+            gap: 14px; /* 要素間の隙間 */
             
-            /* ILLITのドリーミーな光を表現するオーラのような影 */
-            box-shadow: 0 8px 32px 0 rgba(190, 145, 255, 0.2),
-                        inset 0 0 12px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(190, 145, 255, 0.15),
+                        inset 0 0 8px rgba(255, 255, 255, 0.1);
+            
+            width: max-content; /* 中身に合わせる */
+            max-width: 95%;
         }
 
-        /* 上段：URL入力エリア */
-        .controls-top {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-        }
-        
+        /* URL入力エリア */
         .controls input[type="text"] {
-            flex: 1;
-            width: 280px;
-            padding: 10px 16px;
+            width: 180px; /* 横幅を少しコンパクトに */
+            padding: 6px 14px;
             border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            font-size: 13px;
+            font-size: 12px;
             outline: none;
             transition: all 0.3s ease;
         }
-        
-        /* 入力欄にフォーカスした時、ほんのり光る */
         .controls input[type="text"]:focus {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.25);
             border-color: #ffc2eb;
-            box-shadow: 0 0 10px rgba(255, 194, 235, 0.5);
+            box-shadow: 0 0 8px rgba(255, 194, 235, 0.4);
         }
-        
         .controls input[type="text"]::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.5);
         }
 
-        /* パステルグラデーションボタン */
+        /* LOADボタン（パステルグラデーション） */
         .btn-load {
-            padding: 10px 20px;
+            padding: 6px 14px;
             border-radius: 50px;
             border: none;
-            background: linear-gradient(135deg, #ffb3e6, #b3e6ff); /* ゆめかわパステルグラデーション */
+            background: linear-gradient(135deg, #ffb3e6, #b3e6ff);
             color: #4a2a6b;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 179, 230, 0.4);
+            box-shadow: 0 3px 8px rgba(255, 179, 230, 0.3);
             transition: all 0.3s ease;
         }
         .btn-load:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(255, 179, 230, 0.6);
-            opacity: 0.9;
+            box-shadow: 0 5px 12px rgba(255, 179, 230, 0.5);
         }
 
-        /* 下段：コントロール */
-        .controls-bottom {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            width: 100%;
-            justify-content: center;
-        }
-
-        /* 標準ボタン */
+        /* コントロールボタン共通 */
         .btn-player {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
             cursor: pointer;
-            font-size: 13px;
-            letter-spacing: 0.5px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         .btn-player:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
         }
         
-        /* YouTube反転ボタン（ホログラムネオン風） */
+        /* MIRRORボタン（ホログラムネオン風） */
         .btn-player.btn-flip {
             background: linear-gradient(135deg, #c2b3ff, #ffb3e6);
             border: none;
             color: #3b2457;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(194, 179, 255, 0.4);
+            box-shadow: 0 3px 8px rgba(194, 179, 255, 0.3);
         }
         .btn-player.btn-flip:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(194, 179, 255, 0.6);
+            box-shadow: 0 5px 12px rgba(194, 179, 255, 0.5);
+        }
+
+        /* 区切り線（縦線）を入れて視認性をアップ */
+        .divider {
+            width: 1px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* スライダー周り */
         .controls label {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 12px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 11px;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-left: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
-        /* カスタムスライダー（シースルーピンク） */
+        /* カスタムスライダー */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
-            background: rgba(255, 255, 255, 0.2);
-            height: 6px;
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.15);
+            height: 4px;
+            border-radius: 2px;
             outline: none;
-            width: 100px;
+            width: 80px; /* 幅をタイトに */
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: #ffc2eb;
             cursor: pointer;
-            box-shadow: 0 0 6px rgba(255, 194, 235, 1);
+            box-shadow: 0 0 5px rgba(255, 194, 235, 0.8);
             transition: transform 0.1s ease;
         }
         input[type="range"]::-webkit-slider-thumb:hover {
@@ -212,23 +205,23 @@
     </div>
 
     <div class="controls">
-        <div class="controls-top">
-            <input type="text" id="youtubeUrl" placeholder="YouTubeのURLまたは動画IDを入力...">
-            <button class="btn-load" onclick="loadVideo()">LOAD</button>
-        </div>
+        <input type="text" id="youtubeUrl" placeholder="YouTube URL / ID...">
+        <button class="btn-load" onclick="loadVideo()">LOAD</button>
         
-        <div class="controls-bottom">
-            <button class="btn-player" onclick="skip(-10)">◀ 10s</button>
-            <button class="btn-player" id="playPauseBtn" onclick="togglePlay()">PAUSE</button>
-            <button class="btn-player" onclick="skip(10)">10s ▶</button>
-            
-            <button class="btn-player btn-flip" onclick="toggleYoutubeMirror()">MIRROR</button>
-            
-            <label>
-                OPACITY:
-                <input type="range" id="opacitySlider" min="0.1" max="0.9" step="0.05" value="0.5" oninput="changeOpacity(this.value)">
-            </label>
-        </div>
+        <div class="divider"></div>
+        
+        <button class="btn-player" onclick="skip(-10)">◀ 10s</button>
+        <button class="btn-player" id="playPauseBtn" onclick="togglePlay()">PAUSE</button>
+        <button class="btn-player" onclick="skip(10)">10s ▶</button>
+        
+        <div class="divider"></div>
+        
+        <button class="btn-player btn-flip" onclick="toggleYoutubeMirror()">MIRROR</button>
+        
+        <label>
+            OPACITY
+            <input type="range" id="opacitySlider" min="0.1" max="0.9" step="0.05" value="0.5" oninput="changeOpacity(this.value)">
+        </label>
     </div>
 
     <script>
@@ -258,7 +251,7 @@
             player = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
-                videoId: 'ZKu7R-8-F-U', // ILLITの「Magnetic」のMVなどを入れるとより雰囲気が出ます
+                videoId: 'ZKu7R-8-F-U',
                 playerVars: {
                     'autoplay': 1,
                     'mute': 1,
@@ -310,6 +303,7 @@
             }
         }
 
+        // スペースキーでも再生・一時停止可能に（入力欄フォーカス時を除く）
         document.addEventListener('keydown', (event) => {
             if (document.activeElement.tagName === 'INPUT') return;
             if (event.code === 'Space') {
@@ -323,6 +317,10 @@
             const currentTime = player.getCurrentTime();
             player.seekTo(currentTime + seconds, true);
         }
+
+        document.getElementById('youtubeUrl').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') loadVideo();
+        });
 
         function toggleYoutubeMirror() {
             const container = document.getElementById('videoContainer');
